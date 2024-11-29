@@ -16,7 +16,6 @@ public class Receptionist extends Component {
     private final ReentrantLock lock;
     private final Condition customerWaiting;
     private boolean isBusy;
-    private Customer currentCustomer;
     private final CustomerStats customerStats;
 
     public Receptionist(RestaurantMonitor restaurantMonitor, Point2D position, CustomerStats customerStats) {

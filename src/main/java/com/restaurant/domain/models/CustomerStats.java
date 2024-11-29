@@ -20,8 +20,11 @@ public class CustomerStats {
     }
 
     public void decrementWaitingForTable() {
-        customersWaitingTable.set(customersWaitingTable.get() - 1);
-        customersAtTables.set(customersAtTables.get() + 1);
+        int currentValue = customersWaitingTable.get();
+        if (currentValue > 0) {
+            customersWaitingTable.set(currentValue - 1);
+            customersAtTables.set(customersAtTables.get() + 1);
+        }
     }
 
     public void incrementWaitingForFood() {

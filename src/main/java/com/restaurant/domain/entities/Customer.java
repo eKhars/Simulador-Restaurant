@@ -20,6 +20,7 @@ public class Customer extends Component {
     private int tableNumber = -1;
     private Point2D targetPosition;
     private boolean isMoving = false;
+    private boolean isWaitingForTable = false;
     private CustomerState state = CustomerState.ENTERING;
     private static final double SPEED = GameConfig.CUSTOMER_SPEED;
     private final int id;
@@ -51,7 +52,6 @@ public class Customer extends Component {
     public void onAdded() {
         entity.setPosition(GameConfig.ENTRANCE_X, GameConfig.ENTRANCE_Y);
         moveToReceptionist();
-        customerStats.incrementWaitingForTable();
     }
 
     @Override
@@ -88,7 +88,10 @@ public class Customer extends Component {
                 break;
             case MOVING_TO_TABLE:
                 synchronized (stateLock) {
-                    customerStats.decrementWaitingForTable();
+                    if (isWaitingForTable) {
+                        customerStats.decrementWaitingForTable();
+                        isWaitingForTable = false;
+                    }
                     customerStats.incrementWaitingForFood();
                     state = CustomerState.WAITING_FOR_WAITER;
                     notifyWaiter();
@@ -121,6 +124,7 @@ public class Customer extends Component {
     public void waitForTable() {
         synchronized (stateLock) {
             state = CustomerState.WAITING_FOR_TABLE;
+            isWaitingForTable = true;
         }
     }
 
