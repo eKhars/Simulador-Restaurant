@@ -109,7 +109,7 @@ public class GameApp extends GameApplication {
         restaurantMonitor = new RestaurantMonitor();
         orderQueueMonitor = new OrderQueueMonitor();
         customerQueueMonitor = new CustomerQueueMonitor();
-        poissonDistribution = new PoissonDistribution(0.2); // Ajusta este valor para cambiar la frecuencia de llegada
+        poissonDistribution = new PoissonDistribution(1);
     }
 
     private void initializeUI() {
@@ -278,36 +278,6 @@ public class GameApp extends GameApplication {
         getGameWorld().spawn("customer", data);
     }
 
-    @Override
-    protected void onUpdate(double tpf) {
-
-    }
-
-    private void stopCookThreads() {
-        for (Thread cookThread : cookThreads) {
-            cookThread.interrupt();
-            try {
-                cookThread.join(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        cookThreads.clear();
-    }
-
-    private void stopCustomerGenerator() {
-        if (customerSpawner != null) {
-            customerSpawner.shutdown();
-            try {
-                if (!customerSpawner.awaitTermination(800, TimeUnit.MILLISECONDS)) {
-                    customerSpawner.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                customerSpawner.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
 
     public static void main(String[] args) {
         launch(args);

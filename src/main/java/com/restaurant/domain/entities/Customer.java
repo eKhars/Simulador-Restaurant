@@ -199,14 +199,4 @@ public class Customer extends Component {
                 100 + row * (GameConfig.SPRITE_SIZE * 2)
         );
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public CustomerState getState() {
-        synchronized (stateLock) {
-            return state;
-        }
-    }
 }
