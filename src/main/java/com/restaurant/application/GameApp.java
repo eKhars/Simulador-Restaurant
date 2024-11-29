@@ -87,12 +87,12 @@ public class GameApp extends GameApplication {
     private Entity createBackgroundEntity() {
         Image backgroundImage = new Image(getClass().getResourceAsStream("/image/fondo.png"));
         ImageView backgroundImageView = new ImageView(backgroundImage);
-        backgroundImageView.setFitWidth(1250);
+        backgroundImageView.setFitWidth(1050);
         backgroundImageView.setFitHeight(1000);
         backgroundImageView.setPreserveRatio(false);
 
         AnchorPane root = new AnchorPane();
-        AnchorPane.setTopAnchor(backgroundImageView, 0.0);
+        AnchorPane.setTopAnchor(backgroundImageView, -250.0);
         AnchorPane.setLeftAnchor(backgroundImageView, 0.0);
         root.getChildren().add(backgroundImageView);
 
@@ -186,8 +186,8 @@ public class GameApp extends GameApplication {
         for (int i = 0; i < GameConfig.TOTAL_TABLES; i++) {
             int row = i / 5;
             int col = i % 5;
-            double x = 350 + col * (GameConfig.SPRITE_SIZE * 2);
-            double y = 350 + row * (GameConfig.SPRITE_SIZE * 2);
+            double x = 200 + col * (GameConfig.SPRITE_SIZE * 2);
+            double y = 3 + row * (GameConfig.SPRITE_SIZE * 2);
 
             SpawnData data = new SpawnData(x, y);
             data.put("tableNumber", i);
@@ -213,8 +213,8 @@ public class GameApp extends GameApplication {
     private void initializeWaiters() {
         for (int i = 0; i < GameConfig.TOTAL_WAITERS; i++) {
             Point2D startPos = new Point2D(
-                    GameConfig.KITCHEN_X + GameConfig.SPRITE_SIZE,
-                    GameConfig.KITCHEN_Y - ((i + 1) * GameConfig.SPRITE_SIZE * 1.5)
+                    GameConfig.WAITER_X + GameConfig.SPRITE_SIZE,
+                    GameConfig.WAITER_Y - ((i + 1) * GameConfig.SPRITE_SIZE * 1.5)
             );
 
             Waiter waiter = new Waiter(

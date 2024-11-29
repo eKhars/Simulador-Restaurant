@@ -89,7 +89,6 @@ public class GameFactory implements EntityFactory {
                 .build();
     }
 
-
     @Spawns("receptionist")
     public Entity spawnReceptionist(SpawnData data) {
         ImageView imageView = new ImageView(new Image("image/personas/Recepcionista.png"));
@@ -115,3 +114,5 @@ public class GameFactory implements EntityFactory {
                 .build();
     }
 }
+
+
