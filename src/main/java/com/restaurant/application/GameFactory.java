@@ -6,15 +6,11 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
 import com.restaurant.config.GameConfig;
 import com.restaurant.domain.entities.*;
+import com.restaurant.utils.ImageCache;
 import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-
 import java.util.List;
 import java.util.Random;
-
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 
 public class GameFactory implements EntityFactory {
@@ -29,10 +25,12 @@ public class GameFactory implements EntityFactory {
         );
 
         Random rand = new Random();
-        int randomIndex = rand.nextInt(imagePaths.size());
-        ImageView imageView = new ImageView(new Image(imagePaths.get(randomIndex)));
+        String selectedPath = imagePaths.get(rand.nextInt(imagePaths.size()));
+        ImageView imageView = new ImageView(ImageCache.getImage(selectedPath));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(data.getX(), data.getY())
@@ -41,12 +39,13 @@ public class GameFactory implements EntityFactory {
                 .build();
     }
 
-
     @Spawns("waiter")
     public Entity spawnWaiter(SpawnData data) {
-        ImageView imageView = new ImageView(new Image("image/personas/Mesera.png"));
+        ImageView imageView = new ImageView(ImageCache.getImage("image/personas/Mesera.png"));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(data.getX(), data.getY())
@@ -60,14 +59,15 @@ public class GameFactory implements EntityFactory {
         List<String> imagePaths = List.of(
                 "image/personas/Cocinero.png",
                 "image/personas/Cocinero2.png"
-
         );
 
         Random rand = new Random();
-        int randomIndex = rand.nextInt(imagePaths.size());
-        ImageView imageView = new ImageView(new Image(imagePaths.get(randomIndex)));
+        String selectedPath = imagePaths.get(rand.nextInt(imagePaths.size()));
+        ImageView imageView = new ImageView(ImageCache.getImage(selectedPath));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(data.getX(), data.getY())
@@ -75,12 +75,13 @@ public class GameFactory implements EntityFactory {
                 .build();
     }
 
-
     @Spawns("table")
     public Entity spawnTable(SpawnData data) {
-        ImageView imageView = new ImageView(new Image("image/objetos/Mesa1Persona.png"));
+        ImageView imageView = new ImageView(ImageCache.getImage("image/objetos/Mesa1Persona.png"));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 9);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 9);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(data.getX(), data.getY())
@@ -91,9 +92,11 @@ public class GameFactory implements EntityFactory {
 
     @Spawns("receptionist")
     public Entity spawnReceptionist(SpawnData data) {
-        ImageView imageView = new ImageView(new Image("image/personas/Recepcionista.png"));
+        ImageView imageView = new ImageView(ImageCache.getImage("image/personas/Recepcionista.png"));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(GameConfig.RECEPTIONIST_X, GameConfig.RECEPTIONIST_Y)
@@ -104,9 +107,11 @@ public class GameFactory implements EntityFactory {
 
     @Spawns("kitchen")
     public Entity spawnKitchen(SpawnData data) {
-        ImageView imageView = new ImageView(new Image("image/objetos/Estufa.png"));
+        ImageView imageView = new ImageView(ImageCache.getImage("image/objetos/Estufa.png"));
         imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
         imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+        imageView.setSmooth(true);
+        imageView.setCache(true);
 
         return entityBuilder()
                 .at(data.getX(), data.getY())
@@ -114,5 +119,3 @@ public class GameFactory implements EntityFactory {
                 .build();
     }
 }
-
-
