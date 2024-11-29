@@ -169,18 +169,13 @@ public class GameApp extends GameApplication {
 
     private void initializeGameElements() {
 
-        initializeKitchen();
         initializeTables();
         initializeReceptionist();
         initializeWaiters();
         initializeCooks();
     }
 
-    private void initializeKitchen() {
-        getGameWorld().spawn("kitchen",
-                new SpawnData(GameConfig.KITCHEN_X, GameConfig.KITCHEN_Y)
-        );
-    }
+
 
     private void initializeTables() {
         for (int i = 0; i < GameConfig.TOTAL_TABLES; i++) {

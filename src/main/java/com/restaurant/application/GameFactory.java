@@ -104,18 +104,4 @@ public class GameFactory implements EntityFactory {
                 .with(data.<Receptionist>get("receptionistComponent"))
                 .build();
     }
-
-    @Spawns("kitchen")
-    public Entity spawnKitchen(SpawnData data) {
-        ImageView imageView = new ImageView(ImageCache.getImage("image/objetos/Estufa.png"));
-        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
-        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
-        imageView.setSmooth(true);
-        imageView.setCache(true);
-
-        return entityBuilder()
-                .at(data.getX(), data.getY())
-                .view(imageView)
-                .build();
-    }
 }
