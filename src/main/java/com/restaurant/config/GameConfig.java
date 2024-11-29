@@ -4,7 +4,7 @@ public class GameConfig {
     // Configuración del restaurante
     public static final int WINDOW_WIDTH = 1280;
     public static final int WINDOW_HEIGHT = 720;
-    public static final int TOTAL_TABLES = 20;
+    public static final int TOTAL_TABLES = 10;
     public static final int TOTAL_WAITERS = 2;
     public static final int TOTAL_COOKS = 3;
 

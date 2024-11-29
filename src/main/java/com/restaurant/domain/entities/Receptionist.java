@@ -122,6 +122,6 @@ public class Receptionist extends Component {
 
     @Override
     public void onUpdate(double tpf) {
-        // Aquí podemos agregar lógica de actualización visual si es necesario
+
     }
 }

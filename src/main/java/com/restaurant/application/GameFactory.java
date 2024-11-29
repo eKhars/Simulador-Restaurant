@@ -7,8 +7,13 @@ import com.almasb.fxgl.entity.Spawns;
 import com.restaurant.config.GameConfig;
 import com.restaurant.domain.entities.*;
 import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import java.util.List;
+import java.util.Random;
 
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 
@@ -16,53 +21,97 @@ public class GameFactory implements EntityFactory {
 
     @Spawns("customer")
     public Entity spawnCustomer(SpawnData data) {
+        List<String> imagePaths = List.of(
+                "image/personas/Persona.png",
+                "image/personas/Persona2.png",
+                "image/personas/Persona3.png",
+                "image/personas/Persona4.png"
+        );
+
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(imagePaths.size());
+        ImageView imageView = new ImageView(new Image(imagePaths.get(randomIndex)));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+
         return entityBuilder()
                 .at(data.getX(), data.getY())
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE, GameConfig.SPRITE_SIZE, Color.BLUE))
+                .viewWithBBox(imageView)
                 .with(data.<Customer>get("customerComponent"))
                 .build();
     }
 
+
     @Spawns("waiter")
     public Entity spawnWaiter(SpawnData data) {
+        ImageView imageView = new ImageView(new Image("image/personas/Mesera.png"));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+
         return entityBuilder()
                 .at(data.getX(), data.getY())
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE, GameConfig.SPRITE_SIZE, Color.GREEN))
+                .viewWithBBox(imageView)
                 .with(data.<Waiter>get("waiterComponent"))
                 .build();
     }
 
     @Spawns("cook")
     public Entity spawnCook(SpawnData data) {
+        List<String> imagePaths = List.of(
+                "image/personas/Cocinero.png",
+                "image/personas/Cocinero2.png"
+
+        );
+
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(imagePaths.size());
+        ImageView imageView = new ImageView(new Image(imagePaths.get(randomIndex)));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+
         return entityBuilder()
                 .at(data.getX(), data.getY())
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE, GameConfig.SPRITE_SIZE, Color.RED))
+                .viewWithBBox(imageView)
                 .build();
     }
 
+
     @Spawns("table")
     public Entity spawnTable(SpawnData data) {
+        ImageView imageView = new ImageView(new Image("image/objetos/Mesa1Persona.png"));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 9);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 9);
+
         return entityBuilder()
                 .at(data.getX(), data.getY())
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE * 1.5, GameConfig.SPRITE_SIZE * 1.5, Color.BROWN))
+                .viewWithBBox(imageView)
                 .with(new Table(data.get("tableNumber"), new Point2D(data.getX(), data.getY())))
                 .build();
     }
 
+
     @Spawns("receptionist")
     public Entity spawnReceptionist(SpawnData data) {
+        ImageView imageView = new ImageView(new Image("image/personas/Recepcionista.png"));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+
         return entityBuilder()
                 .at(GameConfig.RECEPTIONIST_X, GameConfig.RECEPTIONIST_Y)
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE, GameConfig.SPRITE_SIZE, Color.PURPLE))
+                .viewWithBBox(imageView)
                 .with(data.<Receptionist>get("receptionistComponent"))
                 .build();
     }
 
     @Spawns("kitchen")
     public Entity spawnKitchen(SpawnData data) {
+        ImageView imageView = new ImageView(new Image("image/objetos/Estufa.png"));
+        imageView.setFitWidth(GameConfig.SPRITE_SIZE * 2);
+        imageView.setFitHeight(GameConfig.SPRITE_SIZE * 2);
+
         return entityBuilder()
                 .at(data.getX(), data.getY())
-                .viewWithBBox(new Rectangle(GameConfig.SPRITE_SIZE * 2, GameConfig.SPRITE_SIZE * 2, Color.GRAY))
+                .view(imageView)
                 .build();
     }
 }

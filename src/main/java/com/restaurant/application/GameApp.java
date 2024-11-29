@@ -4,12 +4,17 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.components.ViewComponent;
 import com.restaurant.config.GameConfig;
 import com.restaurant.domain.entities.*;
 import com.restaurant.domain.models.*;
 import com.restaurant.domain.monitors.*;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -46,6 +51,9 @@ public class GameApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new GameFactory());
 
+        Entity background = createBackgroundEntity();
+        getGameWorld().addEntity(background);
+
         initializeComponents();
         initializeUI();
         initializeGameElements();
@@ -59,6 +67,42 @@ public class GameApp extends GameApplication {
             }
         }));
     }
+
+
+    class BackgroundComponent extends Component {
+
+        private AnchorPane root;
+
+        public BackgroundComponent(AnchorPane root) {
+            this.root = root;
+        }
+
+        @Override
+        public void onAdded() {
+            ViewComponent viewComponent = getEntity().getViewComponent();
+            viewComponent.addChild(root);
+        }
+    }
+
+    private Entity createBackgroundEntity() {
+        Image backgroundImage = new Image(getClass().getResourceAsStream("/image/fondo.png"));
+        ImageView backgroundImageView = new ImageView(backgroundImage);
+        backgroundImageView.setFitWidth(1250);
+        backgroundImageView.setFitHeight(1000);
+        backgroundImageView.setPreserveRatio(false);
+
+        AnchorPane root = new AnchorPane();
+        AnchorPane.setTopAnchor(backgroundImageView, 0.0);
+        AnchorPane.setLeftAnchor(backgroundImageView, 0.0);
+        root.getChildren().add(backgroundImageView);
+
+        // crea una entidad con el AnchorPane como componente
+        Entity backgroundEntity = new Entity();
+        backgroundEntity.addComponent(new BackgroundComponent(root));
+
+        return backgroundEntity;
+    }
+
 
     private void initializeComponents() {
         customerStats = new CustomerStats();
@@ -124,7 +168,7 @@ public class GameApp extends GameApplication {
     }
 
     private void initializeGameElements() {
-        // Inicializar elementos del juego en orden
+
         initializeKitchen();
         initializeTables();
         initializeReceptionist();
@@ -142,8 +186,8 @@ public class GameApp extends GameApplication {
         for (int i = 0; i < GameConfig.TOTAL_TABLES; i++) {
             int row = i / 5;
             int col = i % 5;
-            double x = 300 + col * (GameConfig.SPRITE_SIZE * 2);
-            double y = 100 + row * (GameConfig.SPRITE_SIZE * 2);
+            double x = 350 + col * (GameConfig.SPRITE_SIZE * 2);
+            double y = 350 + row * (GameConfig.SPRITE_SIZE * 2);
 
             SpawnData data = new SpawnData(x, y);
             data.put("tableNumber", i);
@@ -151,6 +195,7 @@ public class GameApp extends GameApplication {
             tables.add(table);
         }
     }
+
 
     private void initializeReceptionist() {
         Point2D receptionistPos = new Point2D(GameConfig.RECEPTIONIST_X, GameConfig.RECEPTIONIST_Y);
@@ -211,7 +256,7 @@ public class GameApp extends GameApplication {
             } catch (Exception e) {
                 System.err.println("Error en generador de clientes: " + e.getMessage());
             }
-        }, 0, 1, TimeUnit.SECONDS);
+        }, 0, 3, TimeUnit.SECONDS);
     }
 
     private void generateNewCustomers() {
@@ -240,7 +285,7 @@ public class GameApp extends GameApplication {
 
     @Override
     protected void onUpdate(double tpf) {
-        // Implementar si se necesita lógica de actualización adicional
+
     }
 
     private void stopCookThreads() {
