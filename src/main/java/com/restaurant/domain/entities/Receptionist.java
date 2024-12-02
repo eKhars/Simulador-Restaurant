@@ -6,15 +6,12 @@ import com.restaurant.domain.models.CustomerStats;
 import javafx.geometry.Point2D;
 import java.util.Queue;
 import java.util.LinkedList;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Condition;
 
 public class Receptionist extends Component {
     private final Point2D position;
     private final RestaurantMonitor restaurantMonitor;
     private final Queue<Customer> waitingCustomers;
-    private final ReentrantLock lock;
-    private final Condition customerWaiting;
+    private final Object monitor = new Object();
     private boolean isBusy;
     private final CustomerStats customerStats;
 
@@ -23,8 +20,6 @@ public class Receptionist extends Component {
         this.position = position;
         this.customerStats = customerStats;
         this.waitingCustomers = new LinkedList<>();
-        this.lock = new ReentrantLock();
-        this.customerWaiting = lock.newCondition();
         this.isBusy = false;
 
         startReceptionistBehavior();
@@ -45,8 +40,7 @@ public class Receptionist extends Component {
     }
 
     public void addCustomerToQueue(Customer customer) {
-        lock.lock();
-        try {
+        synchronized (monitor) {
             int tableNumber = restaurantMonitor.findAvailableTable();
 
             if (tableNumber != -1) {
@@ -56,16 +50,13 @@ public class Receptionist extends Component {
                 waitingCustomers.add(customer);
                 customerStats.incrementWaitingForTable();
                 customer.waitForTable();
-                customerWaiting.signal();
+                monitor.notify();
             }
-        } finally {
-            lock.unlock();
         }
     }
 
     private void processNextCustomer() throws InterruptedException {
-        lock.lock();
-        try {
+        synchronized (monitor) {
             while (!waitingCustomers.isEmpty()) {
                 int tableNumber = restaurantMonitor.findAvailableTable();
                 if (tableNumber != -1) {
@@ -78,8 +69,6 @@ public class Receptionist extends Component {
                     break;
                 }
             }
-        } finally {
-            lock.unlock();
         }
     }
 }

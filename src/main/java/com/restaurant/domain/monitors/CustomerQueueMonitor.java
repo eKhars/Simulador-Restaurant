@@ -3,13 +3,10 @@ package com.restaurant.domain.monitors;
 import com.restaurant.domain.entities.Customer;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomerQueueMonitor {
     private final Queue<CustomerRequest> waitingCustomers;
-    private final ReentrantLock lock;
-    private final Condition customerAvailable;
+    private final Object monitor = new Object();
 
     public static class CustomerRequest {
         public final Customer customer;
@@ -25,38 +22,27 @@ public class CustomerQueueMonitor {
 
     public CustomerQueueMonitor() {
         waitingCustomers = new LinkedList<>();
-        lock = new ReentrantLock();
-        customerAvailable = lock.newCondition();
     }
 
     public void addCustomer(Customer customer, int tableNumber) {
-        lock.lock();
-        try {
+        synchronized (monitor) {
             waitingCustomers.add(new CustomerRequest(customer, tableNumber));
-            customerAvailable.signal();
-        } finally {
-            lock.unlock();
+            monitor.notify();
         }
     }
 
     public CustomerRequest getNextCustomer() throws InterruptedException {
-        lock.lock();
-        try {
+        synchronized (monitor) {
             while (waitingCustomers.isEmpty()) {
-                customerAvailable.await();
+                monitor.wait();
             }
             return waitingCustomers.poll();
-        } finally {
-            lock.unlock();
         }
     }
 
     public boolean hasWaitingCustomers() {
-        lock.lock();
-        try {
+        synchronized (monitor) {
             return !waitingCustomers.isEmpty();
-        } finally {
-            lock.unlock();
         }
     }
 }
