@@ -6,17 +6,13 @@ import com.restaurant.domain.models.CustomerStats;
 import javafx.geometry.Point2D;
 import java.util.Queue;
 import java.util.LinkedList;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Condition;
 
 public class Receptionist extends Component {
     private final Point2D position;
     private final RestaurantMonitor restaurantMonitor;
     private final Queue<Customer> waitingCustomers;
-    private final ReentrantLock lock;
-    private final Condition customerWaiting;
+    private final Object monitor = new Object();
     private boolean isBusy;
-    private Customer currentCustomer;
     private final CustomerStats customerStats;
 
     public Receptionist(RestaurantMonitor restaurantMonitor, Point2D position, CustomerStats customerStats) {
@@ -24,8 +20,6 @@ public class Receptionist extends Component {
         this.position = position;
         this.customerStats = customerStats;
         this.waitingCustomers = new LinkedList<>();
-        this.lock = new ReentrantLock();
-        this.customerWaiting = lock.newCondition();
         this.isBusy = false;
 
         startReceptionistBehavior();
@@ -35,10 +29,7 @@ public class Receptionist extends Component {
         new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    Customer customer = getNextCustomer();
-                    if (customer != null) {
-                        handleCustomer(customer);
-                    }
+                    processNextCustomer();
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -49,79 +40,35 @@ public class Receptionist extends Component {
     }
 
     public void addCustomerToQueue(Customer customer) {
-        lock.lock();
-        try {
-            waitingCustomers.add(customer);
-            customerWaiting.signal();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private Customer getNextCustomer() throws InterruptedException {
-        lock.lock();
-        try {
-            while (waitingCustomers.isEmpty()) {
-                customerWaiting.await();
-            }
-            currentCustomer = waitingCustomers.poll();
-            isBusy = true;
-            return currentCustomer;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    private void handleCustomer(Customer customer) {
-        try {
-            Thread.sleep(200);
-
+        synchronized (monitor) {
             int tableNumber = restaurantMonitor.findAvailableTable();
 
             if (tableNumber != -1) {
                 restaurantMonitor.occupyTable(tableNumber);
                 customer.assignTable(tableNumber);
             } else {
+                waitingCustomers.add(customer);
                 customerStats.incrementWaitingForTable();
                 customer.waitForTable();
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            lock.lock();
-            try {
-                currentCustomer = null;
-                isBusy = false;
-            } finally {
-                lock.unlock();
+                monitor.notify();
             }
         }
     }
 
-    public boolean isBusy() {
-        lock.lock();
-        try {
-            return isBusy;
-        } finally {
-            lock.unlock();
+    private void processNextCustomer() throws InterruptedException {
+        synchronized (monitor) {
+            while (!waitingCustomers.isEmpty()) {
+                int tableNumber = restaurantMonitor.findAvailableTable();
+                if (tableNumber != -1) {
+                    Customer customer = waitingCustomers.poll();
+                    if (customer != null) {
+                        restaurantMonitor.occupyTable(tableNumber);
+                        customer.assignTable(tableNumber);
+                    }
+                } else {
+                    break;
+                }
+            }
         }
-    }
-
-    public Customer getCurrentCustomer() {
-        lock.lock();
-        try {
-            return currentCustomer;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public Point2D getPosition() {
-        return position;
-    }
-
-    @Override
-    public void onUpdate(double tpf) {
-
     }
 }

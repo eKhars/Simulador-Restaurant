@@ -12,9 +12,9 @@ public class ImageCache {
             Image img = new Image(key,
                     GameConfig.SPRITE_SIZE * 2,  // width
                     GameConfig.SPRITE_SIZE * 2,  // height
-                    true,  // preserveRatio
-                    true,  // smooth
-                    true); // background loading
+                    true,
+                    true,
+                    true);
             return img;
         });
     }
@@ -31,6 +31,7 @@ public class ImageCache {
                 "image/personas/Recepcionista.png",
                 "image/objetos/Mesa1Persona.png",
                 "image/objetos/Estufa.png"
+
         };
 
         for (String path : paths) {

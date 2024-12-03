@@ -30,8 +30,4 @@ public class GameConfig {
 
     // Dimensiones de los sprites
     public static final int SPRITE_SIZE = 32;
-
-    private GameConfig() {
-        // Constructor privado para evitar instanciación
-    }
 }
