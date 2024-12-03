@@ -11,12 +11,7 @@ import com.restaurant.domain.entities.*;
 import com.restaurant.domain.models.*;
 import com.restaurant.domain.monitors.*;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +23,8 @@ import com.restaurant.utils.PoissonDistribution;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class GameApp extends GameApplication {
+    private GameUIManager uiManager;
+
     private RestaurantMonitor restaurantMonitor;
     private OrderQueueMonitor orderQueueMonitor;
     private CustomerQueueMonitor customerQueueMonitor;
@@ -49,15 +46,19 @@ public class GameApp extends GameApplication {
 
     @Override
     protected void initGame() {
+        customerStats = new CustomerStats();
+        uiManager = new GameUIManager(customerStats);
+
         getGameWorld().addEntityFactory(new GameFactory());
 
-        Entity background = createBackgroundEntity();
-        getGameWorld().addEntity(background);
+        Entity backgroundEntity = uiManager.createBackgroundEntity();
+        getGameWorld().addEntity(backgroundEntity);
 
         initializeComponents();
-        initializeUI();
+        uiManager.initializeUI();
         initializeGameElements();
         startCustomerGenerator();
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (customerSpawner != null) {
                 customerSpawner.shutdownNow();
@@ -68,9 +69,7 @@ public class GameApp extends GameApplication {
         }));
     }
 
-
-    class BackgroundComponent extends Component {
-
+    public static class BackgroundComponent extends Component {
         private AnchorPane root;
 
         public BackgroundComponent(AnchorPane root) {
@@ -84,88 +83,14 @@ public class GameApp extends GameApplication {
         }
     }
 
-    private Entity createBackgroundEntity() {
-        Image backgroundImage = new Image(getClass().getResourceAsStream("/image/fondo.png"));
-        ImageView backgroundImageView = new ImageView(backgroundImage);
-        backgroundImageView.setFitWidth(1050);
-        backgroundImageView.setFitHeight(1000);
-        backgroundImageView.setPreserveRatio(false);
-
-        AnchorPane root = new AnchorPane();
-        AnchorPane.setTopAnchor(backgroundImageView, -250.0);
-        AnchorPane.setLeftAnchor(backgroundImageView, 0.0);
-        root.getChildren().add(backgroundImageView);
-
-        // crea una entidad con el AnchorPane como componente
-        Entity backgroundEntity = new Entity();
-        backgroundEntity.addComponent(new BackgroundComponent(root));
-
-        return backgroundEntity;
-    }
-
-
     private void initializeComponents() {
         customerStats = new CustomerStats();
         restaurantMonitor = new RestaurantMonitor();
         orderQueueMonitor = new OrderQueueMonitor();
         customerQueueMonitor = new CustomerQueueMonitor();
-        poissonDistribution = new PoissonDistribution(0.2); // Ajusta este valor para cambiar la frecuencia de llegada
+        poissonDistribution = new PoissonDistribution(0.4);
     }
 
-    private void initializeUI() {
-        VBox statsBox = createStatsBox();
-        getGameScene().addUINode(statsBox);
-    }
-
-    private VBox createStatsBox() {
-        VBox stats = new VBox(10);
-        stats.setStyle("-fx-background-color: rgba(255, 255, 255, 0.8); -fx-padding: 10; -fx-background-radius: 5;");
-        stats.setTranslateX(10);
-        stats.setTranslateY(10);
-
-        String labelStyle = "-fx-font-size: 14px; -fx-font-weight: bold;";
-
-        Label waitingTableLabel = createStatsLabel(
-                customerStats.customersWaitingTableProperty(),
-                "Esperando mesa: %d",
-                labelStyle
-        );
-
-        Label waitingFoodLabel = createStatsLabel(
-                customerStats.customersWaitingFoodProperty(),
-                "Esperando comida: %d",
-                labelStyle
-        );
-
-        Label eatingLabel = createStatsLabel(
-                customerStats.customersEatingProperty(),
-                "Comiendo: %d",
-                labelStyle
-        );
-
-        Label atTablesLabel = createStatsLabel(
-                customerStats.customersAtTablesProperty(),
-                "En mesas: %d",
-                labelStyle
-        );
-
-        stats.getChildren().addAll(
-                waitingTableLabel,
-                waitingFoodLabel,
-                eatingLabel,
-                atTablesLabel
-        );
-
-        return stats;
-    }
-
-    private Label createStatsLabel(javafx.beans.property.IntegerProperty property, String format, String style) {
-        Label label = new Label();
-        label.setTextFill(Color.BLACK);
-        label.textProperty().bind(property.asString(format));
-        label.setStyle(style);
-        return label;
-    }
 
     private void initializeGameElements() {
 
@@ -226,23 +151,6 @@ public class GameApp extends GameApplication {
         }
     }
 
-    private void initializeCooks() {
-        double kitchenY = GameConfig.KITCHEN_Y;
-        for (int i = 0; i < GameConfig.TOTAL_COOKS; i++) {
-            Cook cook = new Cook(i, orderQueueMonitor);
-            SpawnData data = new SpawnData(
-                    GameConfig.KITCHEN_X,
-                    kitchenY + (i * GameConfig.SPRITE_SIZE)
-            );
-            data.put("cookComponent", cook);
-            Entity cookEntity = getGameWorld().spawn("cook", data);
-
-            Thread cookThread = new Thread(cook);
-            cookThreads.add(cookThread);
-            cookThread.start();
-        }
-    }
-
     private void startCustomerGenerator() {
         customerSpawner = Executors.newSingleThreadScheduledExecutor();
         customerSpawner.scheduleAtFixedRate(() -> {
@@ -283,6 +191,27 @@ public class GameApp extends GameApplication {
 
     }
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+    //Aplicacion de hilos
+    private void initializeCooks() {
+        double kitchenY = GameConfig.KITCHEN_Y;
+        for (int i = 0; i < GameConfig.TOTAL_COOKS; i++) {
+            Cook cook = new Cook(i, orderQueueMonitor);
+            SpawnData data = new SpawnData(
+                    GameConfig.KITCHEN_X,
+                    kitchenY + (i * GameConfig.SPRITE_SIZE)
+            );
+            data.put("cookComponent", cook);
+            Entity cookEntity = getGameWorld().spawn("cook", data);
+
+            Thread cookThread = new Thread(cook);
+            cookThreads.add(cookThread);
+            cookThread.start();
+        }
+    }
+
     private void stopCookThreads() {
         for (Thread cookThread : cookThreads) {
             cookThread.interrupt();
@@ -307,9 +236,5 @@ public class GameApp extends GameApplication {
                 Thread.currentThread().interrupt();
             }
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
